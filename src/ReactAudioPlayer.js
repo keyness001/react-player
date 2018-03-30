@@ -142,7 +142,7 @@ class ReactAudioPlayer extends Component {
           onPlay={this.onPlay}
           preload={this.props.preload}
           ref={(ref) => { this.audioEl = ref; }}
-          src={playList[playIndex].source[0].url}
+          src={this.props.source}
           style={this.props.style}
           title={title}
           {...conditionalProps}
@@ -181,7 +181,6 @@ ReactAudioPlayer.defaultProps = {
   style: {},
   title: '',
   volume: 1.0,
-  playIndex: 0,
   onPlayNext: () => {},
   onPlayPrev: () => {},
   onShuffle: () => {},
@@ -212,9 +211,8 @@ ReactAudioPlayer.propTypes = {
   style: PropTypes.objectOf(PropTypes.string),
   title: PropTypes.string,
   volume: PropTypes.number,
-  playList: PropTypes.array,
-  playIndex: PropTypes.number,
   loopAll: PropTypes.bool,
+  source: PropTypes.string,
   onPlayNext: PropTypes.func,
   onPlayPrev: PropTypes.func,
   onShuffle: PropTypes.func,

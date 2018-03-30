@@ -14,7 +14,7 @@ class App extends Component {
                   url: 'https://zmp3-mp3-s1.zadn.vn/e5632269f42d1d73443c/3769102702777969994?authen=exp=1522414024~acl=/e5632269f42d1d73443c/*~hmac=3fe16527b9ca163804f6a71c66f12d82',
                   label: '128kps'
               },{
-                  url: 'https://zmp3-mp3-s1.zadn.vn/e5632269f42d1d73443c/3769102702777969994?authen=exp=1522414024~acl=/e5632269f42d1d73443c/*~hmac=3fe16527b9ca163804f6a71c66f12d82',
+                  url: 'https://zmp3-mp3-320s1.zadn.vn/6ddea9d47f9096cecf81/5564314860807015875?authen=exp=1522483490~acl=/6ddea9d47f9096cecf81/*~hmac=a047f4f68eada71ee96aa964bba8d47a',
                   label: '320kps'
               }
           ],
@@ -114,16 +114,21 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state.playIndex);
-    if (Array.isArray(this.state.playlist)) {
+    const {
+      playList,
+      playIndex,
+    } = this.state;
+
+    if (!Array.isArray(playList)) {
       return 'Loading';
     }
-    console.log(this.state.playlist);
+
+    const source = playList[playIndex].source[0].url;
+
     return (
       <div className="App">
         <ReactAudioPlayer
-          playIndex={this.state.playIndex}
-          playList={this.state.playList}
+          source={source}
           controls
           autoPlay
           onPlayNext={this.handlePlayNext}
