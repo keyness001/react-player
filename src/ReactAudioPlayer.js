@@ -1,13 +1,26 @@
 import React, { Component } from 'react';
+import { find } from 'lodash';
 import PropTypes from 'prop-types';
 
 class ReactAudioPlayer extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      src: this.getSource(props.sources)
+    }
+  }
+
+  componentWillMount() {
+
+  }
+
   componentDidMount() {
     const audio = this.audioEl;
     const {
       loop,
       loopAll,
       volume,
+      currentTime,
       onError,
       onCanPlay,
       onCanPlayThrough,
@@ -19,11 +32,14 @@ class ReactAudioPlayer extends Component {
       onLoadedMetadata,
       onVolumeChanged
     } = this.props;
-    this.updateVolume(volume);
 
     audio.addEventListener('error', (e) => {
       onError(e);
     });
+
+    // audio.addEventListener('loadstart',(e) => {
+    //   this.updateTime(this.props.currentTime);
+    // })
 
     // When enough of the file has downloaded to start playing
     audio.addEventListener('canplay', (e) => {
@@ -74,9 +90,38 @@ class ReactAudioPlayer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.updateVolume(nextProps.volume);
+    const {
+      volume,
+      sources,
+    } = nextProps;
+    this.updateVolume(volume);
+    this.updateSource(sources);
   }
 
+  componentDidUpdate() {
+    this.updateTime(this.props.currentTime);
+  }
+
+  // get SOURCE
+  getSource = (source) => {
+    const {
+      quality
+    } = this.props;
+
+    return find(source, { label: quality }).url;
+  }
+
+  //update SOURCE
+  updateSource = (source) => {
+    this.setState({
+      src: this.getSource(source)
+    })
+  }
+
+  //update TIME
+  updateTime = (time) => {
+    this.audioEl.currentTime = time;
+  }
   /**
    * Set an interval to call props.onListen every props.listenInterval time period
    */
@@ -130,7 +175,12 @@ class ReactAudioPlayer extends Component {
       playList,
       playIndex,
       onShuffle,
+      onSwitchQuality,
+      sources,
     } = this.props;
+    const {
+      src
+    } = this.state;
     return (
       <div>
         <audio
@@ -142,7 +192,7 @@ class ReactAudioPlayer extends Component {
           onPlay={this.onPlay}
           preload={this.props.preload}
           ref={(ref) => { this.audioEl = ref; }}
-          src={this.props.source}
+          src={src}
           style={this.props.style}
           title={title}
           {...conditionalProps}
@@ -150,6 +200,9 @@ class ReactAudioPlayer extends Component {
           {incompatibilityMessage}
         </audio>
         <button type="button" onClick={onShuffle}>Shuffle</button>
+        {
+          sources.map((source, srcIndex) => <button type="button" key={srcIndex} onClick={() => onSwitchQuality(source.label, this.audioEl.currentTime)}>{source.label}</button>)
+        }
       </div>
     );
   }
@@ -181,9 +234,11 @@ ReactAudioPlayer.defaultProps = {
   style: {},
   title: '',
   volume: 1.0,
+  quality: '128kps',
   onPlayNext: () => {},
   onPlayPrev: () => {},
   onShuffle: () => {},
+  onSwitchQuality: () => {},
 };
 
 ReactAudioPlayer.propTypes = {
@@ -207,15 +262,17 @@ ReactAudioPlayer.propTypes = {
   onSeeked: PropTypes.func,
   onVolumeChanged: PropTypes.func,
   preload: PropTypes.oneOf(['', 'none', 'metadata', 'auto']),
-  src: PropTypes.string, // Not required b/c can use <source>
+  src: PropTypes.string, // Not required b/c can use <sources>
   style: PropTypes.objectOf(PropTypes.string),
   title: PropTypes.string,
   volume: PropTypes.number,
   loopAll: PropTypes.bool,
-  source: PropTypes.string,
+  sources: PropTypes.array,
+  quality: PropTypes.string,
   onPlayNext: PropTypes.func,
   onPlayPrev: PropTypes.func,
   onShuffle: PropTypes.func,
+  onSwitchQuality: PropTypes.func,
 };
 
 export default ReactAudioPlayer;
